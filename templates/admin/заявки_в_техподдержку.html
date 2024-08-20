@@ -1,0 +1,57 @@
+{% extends 'base_admin.html' %}
+{% block title %}Мои задачи{% endblock%}
+{% block h1 %}Заявки в техподдержку{% endblock%}
+
+{% block main %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Заявки от пользователей
+    </div>
+
+    <div class="card-body">
+        <div class="form-group row mt-2">
+            <div class="row mb-3">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Header</th>
+                            <th scope="col">Header</th>
+                            <th scope="col">Header</th>
+                            <th scope="col">Header</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>random</td>
+                            <td>data</td>
+                            <td>placeholder</td>
+                            <td>text</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>placeholder</td>
+                            <td>irrelevant</td>
+                            <td>visual</td>
+                            <td>layout</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>placeholder</td>
+                            <td>irrelevant</td>
+                            <td>visual</td>
+                            <td>layout</td>
+                        </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

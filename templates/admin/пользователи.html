@@ -1,0 +1,38 @@
+{% extends 'base_admin.html' %}
+{% block title %}Список администраторов{% endblock%}
+{% block h1 %}Список администраторов{% endblock%}
+
+{% block main %}
+<div class="card mb-4">
+                    <div class="card-header">
+                        <i class="fas fa-chart-area me-1"></i>
+                        Форма создания заявки
+                    </div>
+                    <div class="card-body">
+                        <form action="/admin_create" method="post">
+                            <div class="row mb-3">
+                                <div class="form-group row mt-2">
+                                    <label for="fio" class="col-sm-3 col-form-label">Полное ФИО</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" name="name" id="fio" placeholder="Нестеров Илья Алексеевич">
+                                    </div>
+                                </div>
+                                <div class="form-group row mt-2">
+                                    <label for="Username" class="col-sm-3 col-form-label">Username</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" name="password" id="Username" placeholder="nesterov">
+                                    </div>
+                                </div>
+                                <div class="form-group row mt-2">
+                                    <label for="Password" class="col-sm-3 col-form-label">Password</label>
+                                    <div class="col-sm-9">
+                                        <input type="password" class="form-control" name="username" id="Password" placeholder="123">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Зарегистрировать</button>
+                        </form>
+                    </div>
+                </div>
+{% endblock %}

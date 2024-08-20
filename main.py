@@ -1,12 +1,13 @@
-from fastapi import FastAPI, Request, Depends, HTTPException, Form
+from fastapi import FastAPI, Request, Depends, HTTPException, Form, APIRouter
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from starlette.responses import RedirectResponse
 
 from crud import get_admin_users
-from database import engine, SessionLocal, Base
+from database import engine, SessionLocal, Base, get_db
 from models import AdminUsers, Users, Tasks, StatusTask, File, Categories
+from routers import admin
 from schemas import SAdminUserCreate, SUserCreate, SAdmin
 
 app = FastAPI()
@@ -17,20 +18,8 @@ templates = Jinja2Templates(directory="templates")
 
 Base.metadata.create_all(bind=engine)
 
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-@app.get("/")
-async def read_root(request: Request, db: Session = Depends(get_db)):
-    admins = db.query(AdminUsers).all()
-    #  admins = get_admin_users(db)
-    return templates.TemplateResponse("index.html", {"request": request, "admins": admins})
+# Подключаем маршруты админ-панели
+app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
 
 @app.post("/admin_users/")
@@ -56,17 +45,9 @@ async def create_admin(
     return RedirectResponse(url="/", status_code=303)
 
 
-@app.get("/admin/{admin_id}")
-async def get_user(request: Request, admin_id: int, db: Session = Depends(get_db)):
-    # Получаем пользователя из базы данных
-    user = db.query(AdminUsers).filter(AdminUsers.id == admin_id).first()
+'''
 
-    # Если пользователь не найден, возвращаем ошибку 404
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    # Возвращаем данные пользователя
-    return templates.TemplateResponse("admin_page.html", {"request": request, "user": user})
+'''
 
 
 @app.post("/users/")

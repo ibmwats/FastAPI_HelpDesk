@@ -29,9 +29,19 @@ class Users(Base):
     cabinet = Column(String)  # Кабинет
     last_entry = Column(DateTime, default=func.now())
     last_ip = Column(String)
-    user_type = Column(String)  # Тип пользователя(ЗГД/Обычный)
+    user_type_id = Column(Integer, ForeignKey('user_types.id'))  # Ссылка на таблицу user_types
+
+    user_type_relation = relationship("UserType", back_populates="users")  # Связь с таблицей UserType
 
     tasks = relationship("Tasks", back_populates="user_create")
+
+class UserType(Base):
+    __tablename__ = 'user_types'
+    id = Column(Integer, primary_key=True, index=True)
+    type_name = Column(String, unique=True, nullable=False)  # Тип пользователя (ЗГД/Обычный)
+    description = Column(String)  # Описание типа пользователя
+
+    users = relationship("Users", back_populates="user_type_relation")
 
 
 class Tasks(Base):
