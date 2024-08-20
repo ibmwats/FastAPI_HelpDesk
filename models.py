@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from database import Base
 
-
+'''
 class AdminUsers(Base):
     __tablename__ = 'admin_users'
     id = Column(Integer, primary_key=True, index=True)
@@ -12,6 +12,7 @@ class AdminUsers(Base):
     last_entry = Column(DateTime, default=func.now())
 
     tasks = relationship("Tasks", back_populates="user_spec")
+'''
 
 
 class Users(Base):
@@ -33,7 +34,9 @@ class Users(Base):
 
     user_type_relation = relationship("UserType", back_populates="users")  # Связь с таблицей UserType
 
-    tasks = relationship("Tasks", back_populates="user_create")
+    tasks_created = relationship("Tasks", foreign_keys="[Tasks.user_create_id]", back_populates="user_create")
+    tasks_specified = relationship("Tasks", foreign_keys="[Tasks.user_spec_id]", back_populates="user_spec")
+
 
 class UserType(Base):
     __tablename__ = 'user_types'
@@ -61,11 +64,11 @@ class Tasks(Base):
 
     files = relationship("File", back_populates="task")
 
-    user_create_id = Column(Integer, ForeignKey('users.id'))  # Связь с таблицей users
-    user_create = relationship("Users", back_populates="tasks")
+    user_create_id = Column(Integer, ForeignKey('users.id'))  # Связь с таблицей users для создателя задачи
+    user_create = relationship("Users", foreign_keys=[user_create_id], back_populates="tasks_created")
 
-    user_spec_id = Column(Integer, ForeignKey('admin_users.id'))  # Связь с таблицей UserAdmin
-    user_spec = relationship("AdminUsers", back_populates="tasks")
+    user_spec_id = Column(Integer, ForeignKey('users.id'))  # Связь с таблицей users для исполнителя задачи
+    user_spec = relationship("Users", foreign_keys=[user_spec_id], back_populates="tasks_specified")
 
     status_id = Column(Integer, ForeignKey('statustask.id'))  # Связь с таблицей статусов задач
     status = relationship("StatusTask", back_populates="tasks")

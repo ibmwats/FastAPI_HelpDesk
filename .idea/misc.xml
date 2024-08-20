@@ -3,5 +3,5 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.10 (FastAPI_HelpDesk)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (FastAPI_HelpDesk)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (FastAPI_HelpDesk)" project-jdk-type="Python SDK" />
 </project>

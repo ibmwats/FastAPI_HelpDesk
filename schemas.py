@@ -25,3 +25,8 @@ class SUserCreate(BaseModel):
     cabinet: Optional[str] = None
     last_ip: Optional[str] = None
     user_type: Optional[str] = None
+
+
+class SUserTypeCreate(BaseModel):
+    type_name: str
+    description: str

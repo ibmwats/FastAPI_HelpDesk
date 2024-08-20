@@ -1,0 +1,29 @@
+{% extends 'base_admin.html' %}
+{% block title %}Создание типов пользователей{% endblock%}
+{% block h1 %}Создание типов пользователей{% endblock%}
+
+{% block main %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Создание типов пользователей
+    </div>
+    
+    <div class="card-body">
+        <div class="form-group row mt-2">
+            <div class="row mb-3">
+                <h2>Create User Type</h2>
+                <form action="./create_type_user" method="post">
+                    <label for="type_name">Type Name:</label>
+                    <input type="text" id="type_name" name="type_name"><br><br>
+                    <label for="description">Description:</label>
+                    <input type="text" id="description" name="description"><br><br>
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

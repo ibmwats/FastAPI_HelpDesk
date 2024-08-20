@@ -1,0 +1,53 @@
+{% extends 'base_admin.html' %}
+{% block title %}Создание пользователя{% endblock%}
+{% block h1 %}Создание пользователя{% endblock%}
+
+{% block main %}
+<div class="card mb-4">
+    {% if created_user %}
+    <p>Успешно создали пользователя: {{ created_user.username }} с правами {{ created_user.user_type_relation.type_name }}</p>
+    {% endif %}
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Создание пользователя
+    </div>
+    
+    <div class="card-body">
+        <div class="form-group row mt-2">
+            <div class="row mb-3">
+                <form action="./create_user" method="post">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username"><br><br>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password"><br><br>
+                    <label for="name_0">Name (First):</label>
+                    <input type="text" id="name_0" name="name_0"><br><br>
+                    <label for="name_1">Name (Middle):</label>
+                    <input type="text" id="name_1" name="name_1"><br><br>
+                    <label for="name_2">Name (Last):</label>
+                    <input type="text" id="name_2" name="name_2"><br><br>
+                    <label for="tel">Phone:</label>
+                    <input type="text" id="tel" name="tel"><br><br>
+                    <label for="tel_m">Mobile Phone:</label>
+                    <input type="text" id="tel_m" name="tel_m"><br><br>
+                    <label for="division">Division:</label>
+                    <input type="text" id="division" name="division"><br><br>
+                    <label for="building">Building:</label>
+                    <input type="text" id="building" name="building"><br><br>
+                    <label for="cabinet">Cabinet:</label>
+                    <input type="text" id="cabinet" name="cabinet"><br><br>
+                    <label for="user_type_id">User Type:</label>
+                    <select id="user_type_id" name="user_type_id">
+                        {% for type in types %}
+                        <option value="{{ type.id }}">{{ type.type_name }}</option>
+                        {% endfor %}
+                    </select><br><br>
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
