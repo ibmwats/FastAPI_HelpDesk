@@ -20,6 +20,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
+    print(f'verify_password приходит {plain_password} и {hashed_password}')
     return pwd_context.verify(plain_password, hashed_password)
 
 
@@ -41,6 +42,7 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 def authenticate_user(db: Session, username: str, password: str):
     user = db.query(Users).filter(Users.username == username).first()
     if not user or not verify_password(password, user.password):
+        print(f'authenticate_user -> возвращаем None')
         return None
     return user
 
