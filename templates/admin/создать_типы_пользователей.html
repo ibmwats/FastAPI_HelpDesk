@@ -3,27 +3,61 @@
 {% block h1 %}Создание типов пользователей{% endblock%}
 
 {% block main %}
-<div class="card mb-4">
+
+<div class="card mb-4 ">
     <div class="card-header">
         <i class="fas fa-tasks me-1"></i>
         Создание типов пользователей
     </div>
-    
+
     <div class="card-body">
-        <div class="form-group row mt-2">
-            <div class="row mb-3">
-                <h2>Create User Type</h2>
+        <div class="container-fluid px-4">
+            <div class="form-group row mt-2">
                 <form action="./create_type_user" method="post">
-                    <label for="type_name">Type Name:</label>
-                    <input type="text" id="type_name" name="type_name"><br><br>
-                    <label for="description">Description:</label>
-                    <input type="text" id="description" name="description"><br><br>
-                    <input type="submit" value="Submit">
+                    <div class="form-group row mt-2">
+                        <label for="type_name" class="col-sm-2 col-form-label">Тип:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="type_name" name="type_name" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="description" class="col-sm-2 col-form-label">Описание:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="description" name="description" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-5 offset-sm-2">
+                            <input type="submit" value="Submit" class="btn btn-primary">
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
+<h2>Типы пользователей в БД</h2>
+<div class="container-fluid px-0">
+    <table class="table table-hover small">
+        <thead>
+        <tr>
+            <th class="text-center">#</th>
+            <th class="text-center">Наименование</th>
+            <th class="text-center">Описание</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for type in types %}
+        <tr class="table-row">
+            <td class="text-center">{{ type.id }}</td>
+            <td class="text-center">{{ type.type_name }}</td>
+            <td class="text-center">{{ type.description }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 
 {% endblock %}

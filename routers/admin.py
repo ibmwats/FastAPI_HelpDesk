@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Request, Depends, HTTPException, Form
 from sqlalchemy.orm import Session
-from starlette.responses import HTMLResponse, RedirectResponse
+from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
-from database import SessionLocal, get_db
+from database import get_db
 from models import Users, Tasks, UserType
-from schemas import SAdminUserCreate, SUserTypeCreate
 
 router = APIRouter()
 
@@ -60,7 +59,9 @@ async def create_user(username: str = Form(...),
                       cabinet: str = Form(...),
                       user_type_id: str = Form(...),
                       db: Session = Depends(get_db)):
-    new_user = Users(username=username, password=password, name_0=name_0, name_1=name_1, name_2=name_2,
+    #  pass_hash = hash_password(password)
+    pass_hash = 123
+    new_user = Users(username=username, password=pass_hash, name_0=name_0, name_1=name_1, name_2=name_2,
                      tel=tel, tel_m=tel_m, division=division, building=building, cabinet=cabinet,
                      user_type_id=user_type_id)
     db.add(new_user)
@@ -94,69 +95,3 @@ async def user_id(request: Request, admin_id: int, db: Session = Depends(get_db)
 
     # Возвращаем данные пользователя
     return templates.TemplateResponse("admin_page.html", {"request": request, "user": user})
-
-
-'''
-Тестовые функции
-
-
-@router.post("/user_types/create")
-async def create_user_type(type_name: str, description: str, db: Session = Depends(get_db)):
-    new_user_type = UserType(type_name=type_name, description=description)
-    db.add(new_user_type)
-    db.commit()
-    return {"message": "User Type created"}
-
-
-@router.get("/users/create", response_class=HTMLResponse)
-async def create_user_form(request: Request):
-    user_types = db.query(UserType).all()  # Приведите соответствующий запрос для получения типов пользователей
-    user_type_options = "".join(
-        f'<option value="{user_type.id}">{user_type.type_name}</option>' for user_type in user_types)
-    return f"""
-    <html>
-        <body>
-            <h2>Create User</h2>
-            <form action="/users/create" method="post">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username"><br><br>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password"><br><br>
-                <label for="name_0">Name (First):</label>
-                <input type="text" id="name_0" name="name_0"><br><br>
-                <label for="name_1">Name (Middle):</label>
-                <input type="text" id="name_1" name="name_1"><br><br>
-                <label for="name_2">Name (Last):</label>
-                <input type="text" id="name_2" name="name_2"><br><br>
-                <label for="tel">Phone:</label>
-                <input type="text" id="tel" name="tel"><br><br>
-                <label for="tel_m">Mobile Phone:</label>
-                <input type="text" id="tel_m" name="tel_m"><br><br>
-                <label for="division">Division:</label>
-                <input type="text" id="division" name="division"><br><br>
-                <label for="building">Building:</label>
-                <input type="text" id="building" name="building"><br><br>
-                <label for="cabinet">Cabinet:</label>
-                <input type="text" id="cabinet" name="cabinet"><br><br>
-                <label for="user_type_id">User Type:</label>
-                <select id="user_type_id" name="user_type_id">
-                    {user_type_options}
-                </select><br><br>
-                <input type="submit" value="Submit">
-            </form>
-        </body>
-    </html>
-    """
-
-
-@router.post("/users/create")
-async def create_user(username: str, password: str, name_0: str, name_1: str, name_2: str,
-                      tel: str, tel_m: str, division: str, building: str, cabinet: str,
-                      user_type_id: int, db: Session = Depends(get_db)):
-    new_user = User(username=username, password=password, name_0=name_0, name_1=name_1, name_2=name_2,
-                    tel=tel, tel_m=tel_m, division=division, building=building, cabinet=cabinet,
-                    user_type_id=user_type_id)
-    db.add(new_user)
-    db.commit()
-    return {"message": "User created"}
-'''

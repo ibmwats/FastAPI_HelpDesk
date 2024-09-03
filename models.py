@@ -1,18 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func
+#  models.py
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
-
-'''
-class AdminUsers(Base):
-    __tablename__ = 'admin_users'
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String)
-    password = Column(String)
-    name = Column(String)  # ФИО
-    last_entry = Column(DateTime, default=func.now())
-
-    tasks = relationship("Tasks", back_populates="user_spec")
-'''
 
 
 class Users(Base):

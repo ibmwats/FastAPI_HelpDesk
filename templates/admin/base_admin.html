@@ -28,6 +28,95 @@
             width: 255px; /* Установите ширину, увеличив её на 5 пикселей */
         }
     </style>
+    <style>
+        /* Стили для таблицы */
+        table {
+          border-collapse: collapse;
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        /* Стили для ячеек */
+        th, td {
+          border: 1px solid #ccc;
+          padding: 8px;
+          text-align: left;
+        }
+
+        /* Стили для заголовка */
+        th {
+          background-color: #e9ecef;
+        }
+
+        /* При наведении курсора на ячейку */
+        td:hover {
+          background-color: #e6e6e6;
+        }
+
+        /* Стили для кнопки в ячейке */
+        td.btn {
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        a.clickable-link {
+          text-decoration: none;
+          color: inherit;
+        }
+
+            /* Ваш существующий CSS */
+
+            /* Добавленные стили для анимации загрузки */
+            .loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(255, 255, 255, 0.8);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                z-index: 999;
+            }
+
+            .loading-spinner {
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #3498db;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        .image-column {
+            margin-bottom: 0;
+        }
+
+        .text-column {
+            margin-top: 0;
+        }
+
+        .combined-content {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        .combined-content img {
+            margin-right: 10px; /* Регулируйте отступ от картинки к тексту */
+        }
+
+        .text-column {
+            margin: 0;
+        }
+
+
+    </style>
 </head>
 
 <body class="sb-nav-fixed">

@@ -5,48 +5,95 @@
 {% block main %}
 <div class="card mb-4">
     {% if created_user %}
-    <p>Успешно создали пользователя: {{ created_user.username }} с правами {{ created_user.user_type_relation.type_name }}</p>
+    <p>Успешно создали пользователя: {{ created_user.username }} с правами {{ created_user.user_type_relation.type_name
+        }}</p>
     {% endif %}
     <div class="card-header">
-        <i class="fas fa-tasks me-1"></i>
+        <i class="fas fa-users me-1"></i>
         Создание пользователя
     </div>
-    
+
     <div class="card-body">
-        <div class="form-group row mt-2">
-            <div class="row mb-3">
-                <form action="./create_user" method="post">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username"><br><br>
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password"><br><br>
-                    <label for="name_0">Name (First):</label>
-                    <input type="text" id="name_0" name="name_0"><br><br>
-                    <label for="name_1">Name (Middle):</label>
-                    <input type="text" id="name_1" name="name_1"><br><br>
-                    <label for="name_2">Name (Last):</label>
-                    <input type="text" id="name_2" name="name_2"><br><br>
-                    <label for="tel">Phone:</label>
-                    <input type="text" id="tel" name="tel"><br><br>
-                    <label for="tel_m">Mobile Phone:</label>
-                    <input type="text" id="tel_m" name="tel_m"><br><br>
-                    <label for="division">Division:</label>
-                    <input type="text" id="division" name="division"><br><br>
-                    <label for="building">Building:</label>
-                    <input type="text" id="building" name="building"><br><br>
-                    <label for="cabinet">Cabinet:</label>
-                    <input type="text" id="cabinet" name="cabinet"><br><br>
-                    <label for="user_type_id">User Type:</label>
-                    <select id="user_type_id" name="user_type_id">
+    <div class="container-fluid px-4">
+        <form action="./create_user" method="post">
+            <div class="form-group row mt-2">
+                <label for="username" class="col-sm-2 col-form-label">Username:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="username" name="username" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="password" class="col-sm-2 col-form-label">Password:</label>
+                <div class="col-sm-5">
+                    <input type="password" id="password" name="password" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="name_0" class="col-sm-2 col-form-label">Фамилия:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="name_0" name="name_0" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="name_1" class="col-sm-2 col-form-label">Имя:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="name_1" name="name_1" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="name_2" class="col-sm-2 col-form-label">Отчество:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="name_2" name="name_2" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="tel" class="col-sm-2 col-form-label">Рабочий телефон:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="tel" name="tel" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="tel_m" class="col-sm-2 col-form-label">Мобильный телефон:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="tel_m" name="tel_m" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="division" class="col-sm-2 col-form-label">Подразделение:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="division" name="division" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="building" class="col-sm-2 col-form-label">Здание:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="building" name="building" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="cabinet" class="col-sm-2 col-form-label">Кабинет:</label>
+                <div class="col-sm-5">
+                    <input type="text" id="cabinet" name="cabinet" class="form-control">
+                </div>
+            </div>
+            <div class="form-group row mt-2">
+                <label for="user_type_id" class="col-sm-2 col-form-label">Тип пользователя:</label>
+                <div class="col-sm-5">
+                    <select id="user_type_id" name="user_type_id" class="form-control">
                         {% for type in types %}
                         <option value="{{ type.id }}">{{ type.type_name }}</option>
                         {% endfor %}
-                    </select><br><br>
-                    <input type="submit" value="Submit">
-                </form>
+                    </select>
+                </div>
             </div>
-        </div>
+            <div class="form-group row mt-2">
+                <div class="col-sm-5 offset-sm-2">
+                    <input type="submit" value="Submit" class="btn btn-primary">
+                </div>
+            </div>
+        </form>
     </div>
+</div>
 </div>
 
 

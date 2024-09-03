@@ -1,105 +1,65 @@
-from fastapi import FastAPI, Request, Depends, HTTPException, Form, APIRouter, status
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+import uuid
+
+from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, Response, Cookie
+from fastapi.security import HTTPBasicCredentials, HTTPBasic
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from starlette.responses import RedirectResponse, HTMLResponse
-
-from crud import get_admin_users
-from database import engine, SessionLocal, Base, get_db
-from models import Users, Tasks, StatusTask, File, Categories
-from routers import admin
-from routers.auth import get_current_user, authenticate_user, create_access_token, get_admin_user
-from schemas import SAdminUserCreate, SUserCreate, SAdmin
-
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from jose import JWTError, jwt
-from passlib.context import CryptContext
 from datetime import datetime, timedelta
-from typing import Optional
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from starlette.responses import HTMLResponse
+from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.templating import Jinja2Templates
 
-#  pip install python-jose
-#  pip install passlib
-#  fastapi dev main.py
+from auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_user
+from database import get_db
+from models import Base, Users, UserType
+from schemas import UserTypeCreate, UserCreate
 
+# Создание приложения FastAPI
 app = FastAPI()
-
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 templates = Jinja2Templates(directory="templates")
 
-Base.metadata.create_all(bind=engine)
 
-# Подключаем маршруты админ-панели
-app.include_router(admin.router, prefix="/admin", tags=["Admin"])
-
-
-@app.post("/admin_create")
-async def create_admin(
-        username: str = Form(...),
-        password: str = Form(...),
-        name: str = Form(...),
-        db: Session = Depends(get_db)
-):
-    db_user = Users(username=username, password=password, name=name)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return RedirectResponse(url="/", status_code=303)
-
-
-@app.post("/users/")
-async def create_user(user: SUserCreate, db: Session = Depends(get_db)):
-    db_user = Users(
-        username=user.username,
-        password=user.password,
-        name_0=user.name_0,
-        name_1=user.name_1,
-        name_2=user.name_2,
-        tel=user.tel,
-        tel_m=user.tel_m,
-        division=user.division,
-        building=user.building,
-        cabinet=user.cabinet,
-        last_ip=user.last_ip,
-        user_type=user.user_type
-    )
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
-
-
-#  Логика авторизации
-#  Маршрут для получения токена
-@app.post("/token", response_class=HTMLResponse)
-async def login_for_access_token(request: Request, form_data: OAuth2PasswordRequestForm = Depends(),
-                                 db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Incorrect username or password"})
-
-    access_token_expires = timedelta(minutes=30)
-    access_token = create_access_token(data={"sub": user.username, "user_type": user.user_type_relation.type_name},
-                                       expires_delta=access_token_expires)
-    response = RedirectResponse(url="/protected-route", status_code=status.HTTP_302_FOUND)
-    response.set_cookie(key="Authorization", value=f"Bearer {access_token}", httponly=True)
-    print(f'Пользователь имеет привелегии: {user.username}')
-    return response
-
-
-# Маршрут для отображения страницы входа
+# Маршрут для отображения формы входа
 @app.get("/login", response_class=HTMLResponse)
-async def login_page(request: Request):
+async def login_form(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 
-# Пример защищенного маршрута
-@app.get("/protected-route", response_class=HTMLResponse)
-async def read_protected_route(request: Request, current_user: Users = Depends(get_current_user)):
-    return templates.TemplateResponse("protected_route.html", {"request": request, "username": current_user.username})
+@app.post("/login")
+async def login(
+        response: Response,
+        username: str = Form(...),
+        password: str = Form(...),
+        db: Session = Depends(get_db)
+):
+    user = authenticate_user(username, password, db)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password"
+        )
+
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.username}, expires_delta=access_token_expires
+    )
+
+    response.set_cookie(key="access_token", value=access_token, httponly=True)
+    return {"message": f"Hello, {user.username}! ->> {access_token}"}
 
 
-# Пример маршрута для администраторов
-@app.get("/admin-only", response_class=HTMLResponse)
-async def admin_only_route(request: Request, current_user: Users = Depends(get_admin_user)):
-    return templates.TemplateResponse("admin_only.html", {"request": request, "username": current_user.username})
+# Маршрут для выхода (logout)
+@app.get("/logout")
+async def logout(response: Response):
+    # Удаляем cookie, в котором хранится токен
+    response.delete_cookie(key="access_token")
+    return {"message": "Successfully logged out"}
+
+
+@app.get("/protected")
+async def protected_route(current_user: Users = Depends(get_current_user)):
+    return {
+        "message": f"Welcome to the protected route, {current_user.username} -> {current_user.user_type_relation.type_name}!"}
