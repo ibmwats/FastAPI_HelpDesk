@@ -1,21 +1,27 @@
-from fastapi import APIRouter, Request, Depends, HTTPException, Form
+from fastapi import APIRouter, Request, Depends, HTTPException, Form, status
 from sqlalchemy.orm import Session
 from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
+from auth import get_current_user, hash_password
 from database import get_db
 from models import Users, Tasks, UserType
 
 router = APIRouter()
-
 templates = Jinja2Templates(directory="templates/admin")
 
 
 @router.get("/")
-async def index(request: Request, db: Session = Depends(get_db)):
-    tasks = db.query(Tasks).all()
-    #  Получаем список заявок пользователя сессии...
-    return templates.TemplateResponse("мои_задачи.html", {"request": request, "tasks": tasks})
+async def index(request: Request,
+                db: Session = Depends(get_db),
+                current_user: Users = Depends(get_current_user)):
+    try:
+        tasks = db.query(Tasks).all()
+        return templates.TemplateResponse("мои_задачи.html", {"request": request, "tasks": tasks})
+    except HTTPException as exc:
+        if exc.status_code == status.HTTP_303_SEE_OTHER:
+            return RedirectResponse(url="/login")
+        raise exc
 
 
 @router.get("/create_type_user")
@@ -59,8 +65,7 @@ async def create_user(username: str = Form(...),
                       cabinet: str = Form(...),
                       user_type_id: str = Form(...),
                       db: Session = Depends(get_db)):
-    #  pass_hash = hash_password(password)
-    pass_hash = 123
+    pass_hash = hash_password(password)
     new_user = Users(username=username, password=pass_hash, name_0=name_0, name_1=name_1, name_2=name_2,
                      tel=tel, tel_m=tel_m, division=division, building=building, cabinet=cabinet,
                      user_type_id=user_type_id)

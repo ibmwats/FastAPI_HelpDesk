@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, Response, Cookie
+from starlette.responses import RedirectResponse
 
 from database import get_db
 from models import UserType, Users
@@ -15,22 +16,8 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 600
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def create_user_type(db: Session, user_type: UserTypeCreate):
-    # Проверка существования типа с таким же именем
-    db_user_type = db.query(UserType).filter(UserType.type_name == user_type.type_name).first()
-    print(db_user_type)
-    if db_user_type:
-        raise HTTPException(status_code=400, detail="User Type already registered")
-
-    # Создание нового типа
-    new_user_type = UserType(
-        type_name=user_type.type_name,
-        description=user_type.description
-    )
-    db.add(new_user_type)
-    db.commit()
-    db.refresh(new_user_type)
-    return new_user_type
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
 
 
 def verify_password(plain_password, hashed_password):
@@ -58,23 +45,24 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 def get_current_user(token: str = Cookie(None, alias="access_token"), db: Session = Depends(get_db)):
     print(token)
     if not token:
+        print(f'Токен не обнаружен, по этому делаем редирект на страницу авторизации')
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated"
+            status_code=status.HTTP_303_SEE_OTHER,
+            detail="Redirecting to login",
+            headers={"Location": "/login"}
         )
-
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
+                detail="Invalid token ??"
             )
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            detail="Invalid token JWTError"
         )
 
     user = db.query(Users).filter(Users.username == username).first()

@@ -115,27 +115,78 @@
 
 
 <main class="form-signin w-100 m-auto">
-    <form action="/login" method="post">
-        <h1 class="text-center h3 mb-3 fw-normal">Авторизация</h1>
+    <form action="/registration" method="post">
+        <h1 class="text-center h3 mb-3 fw-normal">Регистрация</h1>
+        <hr>
         {% if message %}
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
             {{ message | safe }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         {% endif %}
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="floatingInput" placeholder="Имя пользователя" name="username">
-            <label for="floatingInput">Имя пользователя</label>
+        <div class="form-group row mt-2">
+            <label for="username" class="col-sm-4 col-form-label">Имя пользователя:</label>
+            <div class="col-sm-8">
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
         </div>
-        <div class="form-floating">
-            <input type="password" class="form-control" id="floatingPassword" placeholder="Пароль" name="password">
-            <label for="floatingPassword">Пароль</label>
+        <div class="form-group row mt-2">
+            <label for="password" class="col-sm-4 col-form-label">Пароль:</label>
+            <div class="col-sm-8">
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
         </div>
-        <button class="btn btn-primary w-100 py-2" type="submit" value="Login">Войти</button>
+        <div class="form-group row mt-2">
+            <label for="name_0" class="col-sm-4 col-form-label">Фамилия:</label>
+            <div class="col-sm-8">
+                <input type="text" id="name_0" name="name_0" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="name_1" class="col-sm-4 col-form-label">Имя:</label>
+            <div class="col-sm-8">
+                <input type="text" id="name_1" name="name_1" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="name_2" class="col-sm-4 col-form-label">Отчество:</label>
+            <div class="col-sm-8">
+                <input type="text" id="name_2" name="name_2" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="tel" class="col-sm-4 col-form-label">Рабочий телефон:</label>
+            <div class="col-sm-8">
+                <input type="number" id="tel" name="tel" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="tel_m" class="col-sm-4 col-form-label">Мобильный телефон:</label>
+            <div class="col-sm-8">
+                <input type="number" id="tel_m" name="tel_m" class="form-control">
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="division" class="col-sm-4 col-form-label">Отдел:</label>
+            <div class="col-sm-8">
+                <input type="text" id="division" name="division" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="building" class="col-sm-4 col-form-label">Здание:</label>
+            <div class="col-sm-8">
+                <input type="text" id="building" name="building" class="form-control" required>
+            </div>
+        </div>
+        <div class="form-group row mt-2">
+            <label for="cabinet" class="col-sm-4 col-form-label">Кабинет:</label>
+            <div class="col-sm-8">
+                <input type="text" id="cabinet" name="cabinet" class="form-control" required>
+            </div>
+        </div>
+        <input type="submit" value="Зарегистрироваться" class="btn btn-success w-100 py-2 mt-3">
     </form>
-    <a class="btn btn-success w-100 py-2 mt-2" href="/registration">Зарегистрироваться</a>
-
-    <p class="mt-4 mb-3 text-body-secondary text-center">Забыли пароль?<br>Звоните: 523</p>
+    <a class="btn btn-primary w-100 py-2 mt-2" href="/login">Войти</a>
 </main>
 <script src="static/assets/dist/js/bootstrap.bundle.min.js"></script>
 </body>
