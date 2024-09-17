@@ -13,6 +13,7 @@ from starlette.status import HTTP_401_UNAUTHORIZED
 from starlette.templating import Jinja2Templates
 
 import routers.admin
+import routers.user
 from auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_user, hash_password
 from database import get_db
 from models import Base, Users, UserType
@@ -22,6 +23,7 @@ from schemas import UserTypeCreate, UserCreate
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(routers.admin.router, prefix="/admin", tags=["admin"])
+app.include_router(routers.user.router, prefix="/user", tags=["user"])
 templates = Jinja2Templates(directory="templates")
 
 
@@ -41,31 +43,35 @@ async def login(
 ):
     user = authenticate_user(username, password, db)
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password"
+        message = "Вы ввели не правильный логин или пароль!"
+        return templates.TemplateResponse("login.html", {"request": request,
+                                                         "message": message})
+    else:
+        access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        access_token = create_access_token(
+            data={"sub": user.username}, expires_delta=access_token_expires
         )
 
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
-    )
+        # Устанавливаем токен в cookie
+        response.set_cookie(key="access_token", value=access_token, httponly=True)
+        #  Обновление IP адреса пользователя
+        client_ip = request.client.host
+        user.last_ip = client_ip
+        user.last_entry = func.now()
+        db.commit()
 
-    # Устанавливаем токен в cookie
-    response.set_cookie(key="access_token", value=access_token, httponly=True)
-    #  Обновление IP адреса пользователя
-    client_ip = request.client.host
-    user.last_ip = client_ip
-    user.last_entry = func.now()
-    db.commit()
+        #  Проверяем, является ли пользователь администратором
+        if 'admin' in user.user_type_relation.type_name:
+            rr = RedirectResponse('/admin/', status_code=303)
+            rr.set_cookie(key="access_token", value=access_token, httponly=True)
+            return rr
+        elif 'user' in user.user_type_relation.type_name:
+            rr = RedirectResponse('/user/', status_code=303)
+            rr.set_cookie(key="access_token", value=access_token, httponly=True)
+            return rr
+        else:
+            return {"message": f"Hello, {user.username}! ->> {access_token}"}
 
-    #  Проверяем, является ли пользователь администратором
-    if 'admin' in user.user_type_relation.type_name:
-        rr = RedirectResponse('/admin/', status_code=303)
-        rr.set_cookie(key="access_token", value=access_token, httponly=True)
-        return rr
-    else:
-        return {"message": f"Hello, {user.username}! ->> {access_token}"}
 
 
 # Маршрут для выхода (logout)

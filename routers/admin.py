@@ -15,20 +15,30 @@ templates = Jinja2Templates(directory="templates/admin")
 async def index(request: Request,
                 db: Session = Depends(get_db),
                 current_user: Users = Depends(get_current_user)):
-    try:
-        tasks = db.query(Tasks).all()
-        return templates.TemplateResponse("мои_задачи.html", {"request": request, "tasks": tasks})
-    except HTTPException as exc:
-        if exc.status_code == status.HTTP_303_SEE_OTHER:
-            return RedirectResponse(url="/login")
-        raise exc
+    print(current_user.user_type_relation.type_name)
+    if current_user.user_type_relation.type_name == 'admin' or current_user.user_type_relation.type_name == 'super_admin':
+        try:
+            tasks = db.query(Tasks).all()
+            return templates.TemplateResponse("мои_задачи.html", {"request": request,
+                                                                  "current_user": current_user,
+                                                                  "tasks": tasks})
+        except HTTPException as exc:
+            if exc.status_code == status.HTTP_303_SEE_OTHER:
+                return RedirectResponse(url="/login")
+            raise exc
+    else:
+        return {"Исключение": "Доступ запрещен!"}
 
 
 @router.get("/create_type_user")
-async def type_user(request: Request, db: Session = Depends(get_db)):
+async def type_user(request: Request,
+                    db: Session = Depends(get_db),
+                    current_user: Users = Depends(get_current_user)):
     types = db.query(UserType).all()
     #  Получаем список заявок пользователя сессии...
-    return templates.TemplateResponse("создать_типы_пользователей.html", {"request": request, "types": types})
+    return templates.TemplateResponse("создать_типы_пользователей.html", {"request": request,
+                                                                          "current_user": current_user,
+                                                                          "types": types})
 
 
 @router.post("/create_type_user")
@@ -41,13 +51,16 @@ async def create_user_type(type_name: str = Form(...), description: str = Form(.
 
 
 @router.get("/create_user")
-async def index(request: Request, db: Session = Depends(get_db), created_user_id: int = None):
+async def index(request: Request,
+                db: Session = Depends(get_db),
+                current_user: Users = Depends(get_current_user),
+                created_user_id: int = None):
     types = db.query(UserType).all()
-
     created_user = None
     if created_user_id:
         created_user = db.query(Users).filter(Users.id == created_user_id).first()
     return templates.TemplateResponse("создать_пользователя.html", {"request": request,
+                                                                    "current_user": current_user,
                                                                     "types": types,
                                                                     "created_user": created_user})
 
@@ -75,22 +88,32 @@ async def create_user(username: str = Form(...),
 
 
 @router.get("/tasks")
-async def tasks(request: Request, db: Session = Depends(get_db)):
+async def tasks(request: Request,
+                db: Session = Depends(get_db),
+                current_user: Users = Depends(get_current_user)):
     tasks = db.query(Tasks).all()
     #  Получаем список заявок пользователя сессии...
-    return templates.TemplateResponse("заявки_в_техподдержку.html", {"request": request, "tasks": tasks})
+    return templates.TemplateResponse("заявки_в_техподдержку.html", {"request": request,
+                                                                     "current_user": current_user,
+                                                                     "tasks": tasks})
 
 
 @router.get("/users")
-async def users(request: Request, db: Session = Depends(get_db)):
+async def users(request: Request,
+                db: Session = Depends(get_db),
+                current_user: Users = Depends(get_current_user)):
     admins = db.query(Users).all()
     #  admins = get_admin_users(db)
     print(admins)
-    return templates.TemplateResponse("пользователи.html", {"request": request, "admins": admins})
+    return templates.TemplateResponse("пользователи.html", {"request": request,
+                                                            "current_user": current_user,
+                                                            "admins": admins})
 
 
 @router.get("/user/{admin_id}")
-async def user_id(request: Request, admin_id: int, db: Session = Depends(get_db)):
+async def user_id(request: Request, admin_id: int,
+                  db: Session = Depends(get_db),
+                  current_user: Users = Depends(get_current_user)):
     # Получаем пользователя из базы данных
     user = db.query(Users).filter(Users.id == admin_id).first()
 
@@ -99,4 +122,6 @@ async def user_id(request: Request, admin_id: int, db: Session = Depends(get_db)
         raise HTTPException(status_code=404, detail="User not found")
 
     # Возвращаем данные пользователя
-    return templates.TemplateResponse("admin_page.html", {"request": request, "user": user})
+    return templates.TemplateResponse("admin_page.html", {"request": request,
+                                                          "current_user": current_user,
+                                                          "user": user})

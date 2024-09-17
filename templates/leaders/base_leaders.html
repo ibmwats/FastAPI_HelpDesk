@@ -122,7 +122,7 @@
 <body class="sb-nav-fixed">
 <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
     <!-- Navbar Brand-->
-    <a class="navbar-brand ps-3" href="index.html">Панель ЦИТ<small>/админ</small></a>
+    <a class="navbar-brand ps-3" href="index.html">Панель ЦИТ<small>/{{ current_user.user_type_relation.type_name }}</small></a>
     <!-- Sidebar Toggle-->
     <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#">
         <i class="fas fa-bars"></i></button>
@@ -155,27 +155,21 @@
             <div class="sb-sidenav-menu">
                 <div class="nav">
                     <div class="sb-sidenav-menu-heading">Техподдержка</div>
-                    <a class="nav-link" href="./">Мои задачи(0)</a>
-                    <a class="nav-link" href="./tasks">Заявки в техподдержку(0)</a>
-                    <a class="nav-link" href="#">Заявки на оборудование(0)</a>
-                    <a class="nav-link" href="#">Служебные записки(0)</a>
+                    <a class="nav-link" href="/user/">Создать заявку</a>
+                    <a class="nav-link" href="/user/">Открытые заявки(0)</a>
 
-                    <div class="sb-sidenav-menu-heading">Настройки системы</div>
-                    <a class="nav-link" href="./create_user">Создать пользователя</a>
-                    <a class="nav-link" href="./create_type_user">Типы пользователей</a>
-                    <a class="nav-link" href="#">Категории заявок</a>
-                    <a class="nav-link" href="#">Администраторы</a>
+                    <div class="sb-sidenav-menu-heading">Оборудование</div>
+                    <a class="nav-link" href="#">Создать заявку</a>
+                    <a class="nav-link" href="#">Открытые заявки(0)</a>
 
-
-                    <div class="sb-sidenav-menu-heading">Другое</div>
-                    <a class="nav-link" href="#">Статистика</a>
-
-
+                    <div class="sb-sidenav-menu-heading">Служебные записки</div>
+                    <a class="nav-link" href="#">Создать заявку</a>
+                    <a class="nav-link" href="#">Открытые заявки(0)</a>
                 </div>
             </div>
             <div class="sb-sidenav-footer">
-                <div class="small">Вы вошли, как {{ current_user.user_type_relation.type_name }}:</div>
-                Фамилия Имя Отчество
+                <div class="small">Вы вошли, как:</div>
+                {{ current_user.name_0 }} {{ current_user.name_1 }} {{ current_user.name_2 }}
             </div>
         </nav>
     </div>
@@ -189,11 +183,11 @@
         <footer class="py-4 bg-light mt-auto">
             <div class="container-fluid px-4">
                 <div class="d-flex align-items-center justify-content-between small">
-                    <div class="text-muted">Copyright &copy; Your Website 2023</div>
+                    <div class="text-muted">Разработчик: Нестеров И.А.</div>
                     <div>
-                        <a href="#">Privacy Policy</a>
+                        <a href="#">Инструкция</a>
                         &middot;
-                        <a href="#">Terms &amp; Conditions</a>
+                        <a href="#">Вопросы и ответы</a>
                     </div>
                 </div>
             </div>
