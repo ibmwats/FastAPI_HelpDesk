@@ -1,37 +1,42 @@
 from datetime import datetime, timedelta
+from typing import Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError
+
 from fastapi import FastAPI, Depends, HTTPException, status, Request, Form, Response, Cookie
 from starlette.responses import RedirectResponse
 
 from database import get_db
-from models import UserType, Users
-from schemas import UserTypeCreate
+from models import User
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 
-SECRET_KEY = "sadpkj31d13dopk1d"
+SECRET_KEY = "sadpkj31d13dopk1dd1651/3*"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 600
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def hash_password(password: str) -> str:
+async def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
 
-def verify_password(plain_password, hashed_password):
+async def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def authenticate_user(username: str, password: str, db: Session):
-    user = db.query(Users).filter(Users.username == username).first()
-    if user and verify_password(password, user.password):
-        return user
+async def authenticate_user(username: str, password: str, db: AsyncSession):
+    async with db as session:
+        result = await session.execute(select(User).filter(User.username == username))
+        user = result.scalars().first()
+        if user and verify_password(password, user.password):
+            return user
     return None
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+async def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -42,10 +47,11 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def get_current_user(token: str = Cookie(None, alias="access_token"), db: Session = Depends(get_db)):
-    print(token)
+async def get_current_user(
+        token: str = Cookie(None, alias="access_token"),
+        db: AsyncSession = Depends(get_db)
+):
     if not token:
-        print(f'Токен не обнаружен, по этому делаем редирект на страницу авторизации')
         raise HTTPException(
             status_code=status.HTTP_303_SEE_OTHER,
             detail="Redirecting to login",
@@ -57,18 +63,22 @@ def get_current_user(token: str = Cookie(None, alias="access_token"), db: Sessio
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token ??"
+                detail="Invalid token 1"
             )
     except JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token JWTError"
+            status_code=status.HTTP_303_SEE_OTHER,
+            detail="Invalid token redirecting to login",
+            headers={"Location": "/login"}
         )
 
-    user = db.query(Users).filter(Users.username == username).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-    return user
+    # Вызов асинхронной функции
+    async with db as session:
+        result = await session.execute(select(User).filter(User.username == username))
+        user = result.scalars().first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found"
+            )
+        return user

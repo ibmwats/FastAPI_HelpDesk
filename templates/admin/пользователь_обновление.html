@@ -1,0 +1,155 @@
+{% extends 'base_admin.html' %}
+{% block title %}Информация об отделе: {{ user.name }}{% endblock%}
+{% block h1 %}Информация об отделе: {{ user.name }}{% endblock%}
+
+{% block main %}
+
+
+
+
+<div class="card mb-4 ">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Информация об пользователе: <b>{{ user.username }} / {{ user.surname }} {{ user.name }} {{ user.patronymic
+        }}</b>
+    </div>
+
+    <div class="card-body">
+        <div class="container-fluid px-4">
+            <div class="form-group row mt-2">
+                <h6 class="card-subtitle mb-2 text-body-secondary">Последний вход: {{ user.last_entry }}</h6>
+                <h6 class="card-subtitle mb-2 text-body-secondary">Последний IP: {{ user.last_ip }}</h6>
+                <form action="/admin/user/{{ user.id }}" method="post">
+                    <div class="form-group row mt-2">
+                        <label for="username" class="col-sm-2 col-form-label">Имя пользователя:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="username" name="username" class="form-control"
+                                   value="{{ user.username }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="surname" class="col-sm-2 col-form-label">Фамилия:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="surname" name="surname" class="form-control"
+                                   value="{{ user.surname }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="name" class="col-sm-2 col-form-label">Имя:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="name" name="name" class="form-control" value="{{ user.name }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="patronymic" class="col-sm-2 col-form-label">Отчество:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="patronymic" name="patronymic" class="form-control"
+                                   value="{{ user.patronymic }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="tel_stationary" class="col-sm-2 col-form-label">Стационарный телефон:</label>
+                        <div class="col-sm-5">
+                            <input type="number" id="tel_stationary" name="tel_stationary" class="form-control"
+                                   value="{{ user.tel_stationary }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="tel_mobile" class="col-sm-2 col-form-label">Мобильный телефон:</label>
+                        <div class="col-sm-5">
+                            <input type="number" id="tel_mobile" name="tel_mobile" class="form-control"
+                                   value="{{ user.tel_mobile }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="building" class="col-sm-2 col-form-label">Здание:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="building" name="building" class="form-control"
+                                   value="{{ user.building }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="cabinet" class="col-sm-2 col-form-label">Кабинет:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="cabinet" name="cabinet" class="form-control"
+                                   value="{{ user.cabinet }}">
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="dostup" class="col-sm-2 col-form-label">Права досутпа:</label>
+                        <div class="col-sm-5">
+                            <select id="dostup" name="dostup" class="form-control">
+                                {% for role in roles %}
+                                <option value="{{ role }}" {% if user.dostup== role %}selected{% endif %}>{{ role }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Поля для отделов -->
+                    <div class="form-group row mt-2">
+                        <label for="otdel_id" class="col-sm-2 col-form-label">Отдел:</label>
+                        <div class="col-sm-5">
+                            <select id="otdel_id" name="otdel_id" class="form-control">
+                                {% for otdel in otdels %}
+                                <option value="">Не выбрано</option>
+                                <option value="{{ otdel.id }}" {% if user.otdel and user.otdel.id== otdel.id
+                                        %}selected{% endif %}>{{ otdel.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <!-- Поля для начальника, заместителя, ЗГД -->
+                    <div class="form-group row mt-2">
+                        <label for="nachalnik" class="col-sm-2 col-form-label">Начальник отдела:</label>
+                        <div class="col-sm-5">
+                            <select id="nachalnik" name="nachalnik" class="form-control">
+                                <option value="">Не выбрано</option>
+                                {% for otdel in otdels %}
+                                <option value="{{ otdel.id }}" {% if user.nachalnik_otdel and user.nachalnik_otdel.id==
+                                        otdel.id %}selected{% endif %}>{{ otdel.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="zam" class="col-sm-2 col-form-label">Заместитель отдела:</label>
+                        <div class="col-sm-5">
+                            <select id="zam" name="zam" class="form-control">
+                                <option value="">Не выбрано</option>
+                                {% for otdel in otdels %}
+                                <option value="{{ otdel.id }}" {% if user.zam_otdel and user.zam_otdel.id== otdel.id
+                                        %}selected{% endif %}>{{ otdel.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row mt-2">
+                        <label for="zgd" class="col-sm-2 col-form-label">Заместитель генерального директора:</label>
+                        <div class="col-sm-5">
+                            <select id="zgd" name="zgd" class="form-control">
+                                <option value="">Не выбрано</option>
+                                {% for otdel in otdels %}
+                                <option value="{{ otdel.id }}" {% if user.zgd_otdel and user.zgd_otdel.id== otdel.id
+                                        %}selected{% endif %}>{{ otdel.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-5 offset-sm-2">
+                            <input type="submit" value="Обновить" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

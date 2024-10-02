@@ -5,23 +5,23 @@ from starlette.templating import Jinja2Templates
 
 from auth import get_current_user, hash_password
 from database import get_db
-from models import Users, Tasks, UserType
+from models import User
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates/user")
 
 
+async def access_check(current_user: User = Depends(get_current_user)):
+    if current_user.dostup not in ['пользователь']:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Доступ разрешен только пользователей."
+        )
+    return current_user
+
+
 @router.get("/")
 async def index(request: Request,
                 db: Session = Depends(get_db),
-                current_user: Users = Depends(get_current_user)):
-    print(current_user.user_type_relation.type_name)
-    if current_user.user_type_relation.type_name == 'user':
-        try:
-            return templates.TemplateResponse("главная.html", {"request": request, "current_user": current_user})
-        except HTTPException as exc:
-            if exc.status_code == status.HTTP_303_SEE_OTHER:
-                return RedirectResponse(url="/login")
-            raise exc
-    else:
-        return {"Исключение": "Доступ только для пользователя!"}
+                current_user: User = Depends(access_check)):
+    return templates.TemplateResponse("главная.html", {"request": request, "current_user": current_user})

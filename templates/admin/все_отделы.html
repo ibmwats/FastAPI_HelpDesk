@@ -1,0 +1,186 @@
+{% extends 'base_admin.html' %}
+{% block title %}Все отделы системы{% endblock%}
+{% block h1 %}Все отделы системы{% endblock%}
+
+{% block main %}
+
+<style>
+    .progress-container {
+        display: flex;
+        justify-content: space-between; /* Пространство между шагами */
+        width: 100%; /* Ширина на всю страницу */
+        position: relative; /* Позволяет позиционировать линии внутри */
+        align-items: center; /* Центрирование по вертикали */
+    }
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center; /* Центрирование по горизонтали */
+        position: relative; /* Для позиционирования круга */
+        z-index: 1; /* Поместить шаги выше линии */
+    }
+    .circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 10px; /* Расстояние между кругом и текстом */
+        font-weight: bold;
+        color: white;
+    }
+    .completed {
+        background-color: #28a745; /* success */
+    }
+    .not-completed {
+        background-color: #6c757d; /* secondary */
+    }
+    .line {
+        height: 4px;
+        background-color: #6c757d;
+        position: absolute; /* Позиционирование линии */
+        top: 29%; /* Центрирование линии по вертикали */
+        width: calc(100% - 60px); /* Ширина линии с учетом кругов */
+        left: 30px; /* Смещение от левого края для начала линии от центра первого круга */
+        z-index: 0; /* Линия под шагами */
+    }
+</style>
+
+<div class="container mt-5 md-5">
+    <div class="progress-container">
+        <div class="line"></div> <!-- Общая линия для всех этапов -->
+        <div class="step">
+            <div class="circle completed">1</div>
+            <div class="step-label"><a href="#" data-bs-toggle="tooltip"  data-bs-placement="bottom" class="link-dark" title="Вы создали заявку и она на рассмотрении у вашего руководителя: Иванов И.И.">Создана <i class="fa-solid fa-circle-question"></i></a></div>
+        </div>
+        <div class="step">
+            <div class="circle completed">2</div>
+            <div class="step-label"><a href="#" data-bs-toggle="tooltip"  data-bs-placement="bottom" class="link-dark" title="Вы создали заявку и она на рассмотрении у вашего руководителя: Иванов И.И.">Иванов И.И. <i class="fa-solid fa-circle-question"></i></a></div>
+        </div>
+        <div class="step">
+            <div class="circle not-completed">3</div>
+            <div class="step-label"><a href="#" data-bs-toggle="tooltip"  data-bs-placement="bottom" class="link-dark" title="На этом этапе, заявка находится у ЗГД по экономике и финансам, после подписания, заявка перейдет в работу в отдел ЦИТ">Тулина С.О. <i class="fa-solid fa-circle-question"></i></a></div>
+        </div>
+        <div class="step">
+            <div class="circle not-completed">4</div>
+            <div class="step-label">Принята в работу <i class="fa-solid fa-circle-question"></i></div>
+        </div>
+        <div class="step">
+            <div class="circle not-completed">5</div>
+            <div class="step-label">Выполнено <i class="fa-solid fa-circle-question"></i></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Инициализация tooltip'ов
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl);
+});
+</script>
+
+<div class="card mb-4  mt-5">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Добавление отдела в систему
+    </div>
+
+    <div class="card-body">
+        <div class="container-fluid px-4">
+            <div class="form-group row mt-2">
+                <form action="/admin/otdels" method="post">
+                    <div class="form-group row mt-2">
+                        <label for="name" class="col-sm-2 col-form-label">Наименование:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="name" name="name" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="description" class="col-sm-2 col-form-label">Описание:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="description" name="description" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-5 offset-sm-2">
+                            <input type="submit" value="Создать" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Все отделы системы
+    </div>
+
+    <div class="card-body">
+        <div class="form-group row mt-2">
+            <div class="row mb-3">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Название</th>
+                            <th scope="col">Описание</th>
+                            <th scope="col">Работников</th>
+                            <th scope="col">Начальник</th>
+                            <th scope="col">Зам</th>
+                            <th scope="col">ЗГД</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for otdel in otdels %}
+                        <tr>
+                            <td>{{ otdel.id }}</td>
+                            <td><a href="/admin/otdel/{{ otdel.id }}">{{ otdel.name }}</a></td>
+                            <td>{{ otdel.description }}</td>
+                            <!-- Количество людей в отделе -->
+                            <td>{{ otdel.users | length }}</td>
+
+                            <!-- Вывод начальника отдела (если есть) -->
+                            <td>
+                                {% if otdel.nachalnik %}
+                                {{ otdel.nachalnik.surname }} {{ otdel.nachalnik.name }} {{ otdel.nachalnik.patronymic
+                                }}
+                                {% else %}
+                                Нет начальника
+                                {% endif %}
+                            </td>
+
+                            <!-- Вывод заместителя отдела (если есть) -->
+                            <td>
+                                {% if otdel.zam %}
+                                {{ otdel.zam.surname }} {{ otdel.zam.name }} {{ otdel.zam.patronymic }}
+                                {% else %}
+                                Нет заместителя
+                                {% endif %}
+                            </td>
+
+                            <!-- Вывод заместителя генерального директора (если есть) -->
+                            <td>
+                                {% if otdel.zgd %}
+                                {{ otdel.zgd.surname }} {{ otdel.zgd.name }} {{ otdel.zgd.patronymic }}
+                                {% else %}
+                                Нет ЗГД
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

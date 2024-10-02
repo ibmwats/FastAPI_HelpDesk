@@ -137,39 +137,44 @@
             </div>
         </div>
         <div class="form-group row mt-2">
-            <label for="name_0" class="col-sm-4 col-form-label">Фамилия:</label>
+            <label for="surname" class="col-sm-4 col-form-label">Фамилия:</label>
             <div class="col-sm-8">
-                <input type="text" id="name_0" name="name_0" class="form-control" required>
+                <input type="text" id="surname" name="surname" class="form-control" required>
             </div>
         </div>
         <div class="form-group row mt-2">
-            <label for="name_1" class="col-sm-4 col-form-label">Имя:</label>
+            <label for="name" class="col-sm-4 col-form-label">Имя:</label>
             <div class="col-sm-8">
-                <input type="text" id="name_1" name="name_1" class="form-control" required>
+                <input type="text" id="name" name="name" class="form-control" required>
             </div>
         </div>
         <div class="form-group row mt-2">
-            <label for="name_2" class="col-sm-4 col-form-label">Отчество:</label>
+            <label for="patronymic" class="col-sm-4 col-form-label">Отчество:</label>
             <div class="col-sm-8">
-                <input type="text" id="name_2" name="name_2" class="form-control" required>
+                <input type="text" id="patronymic" name="patronymic" class="form-control" required>
             </div>
         </div>
         <div class="form-group row mt-2">
-            <label for="tel" class="col-sm-4 col-form-label">Рабочий телефон:</label>
+            <label for="tel_stationary" class="col-sm-4 col-form-label">Рабочий телефон:</label>
             <div class="col-sm-8">
-                <input type="number" id="tel" name="tel" class="form-control" required>
+                <input type="number" id="tel_stationary" name="tel_stationary" class="form-control" required>
             </div>
         </div>
         <div class="form-group row mt-2">
-            <label for="tel_m" class="col-sm-4 col-form-label">Мобильный телефон:</label>
+            <label for="tel_mobile" class="col-sm-4 col-form-label">Мобильный телефон:</label>
             <div class="col-sm-8">
-                <input type="number" id="tel_m" name="tel_m" class="form-control">
+                <input type="number" id="tel_mobile" name="tel_mobile" class="form-control">
             </div>
         </div>
         <div class="form-group row mt-2">
-            <label for="division" class="col-sm-4 col-form-label">Отдел:</label>
+            <label for="otdel_id" class="col-sm-4 col-form-label">Отдел:</label>
             <div class="col-sm-8">
-                <input type="text" id="division" name="division" class="form-control" required>
+                <select id="otdel_id" name="otdel_id" class="form-control">
+                    <option value=""></option>
+                    {% for otdel in otdels %}
+                    <option value="{{ otdel.id }}">{{ otdel.name }}</option>
+                    {% endfor %}
+                </select>
             </div>
         </div>
         <div class="form-group row mt-2">

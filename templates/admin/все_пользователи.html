@@ -1,0 +1,47 @@
+{% extends 'base_admin.html' %}
+{% block title %}Все пользователи системы{% endblock%}
+{% block h1 %}Все пользователи системы{% endblock%}
+
+{% block main %}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Все пользователи системы
+    </div>
+
+    <div class="card-body">
+        <div class="form-group row mt-2">
+            <div class="row mb-3">
+                <div class="table-responsive">
+                    <table class="table table-striped table-sm table-bordered">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Пользователь</th>
+                            <th scope="col">Фамилия</th>
+                            <th scope="col">Имя</th>
+                            <th scope="col">Отчество</th>
+                            <th scope="col">Права</th>
+                            <th scope="col">Состоит в отделе</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td><a href="/admin/user/{{ user.id }}">{{ user.id }}</a></td>
+                            <td><a href="/admin/user/{{ user.id }}">{{ user.username }}</a></td>
+                            <td><a href="/admin/user/{{ user.id }}">{{ user.surname }}</a></td>
+                            <td><a href="/admin/user/{{ user.id }}">{{ user.name }}</a></td>
+                            <td><a href="/admin/user/{{ user.id }}">{{ user.patronymic }}</a></td>
+                            <td>{{ user.dostup }}</td>
+                            <td>{{ user.otdel.name if user.otdel else '❌ Без отдела' }}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,43 +1,107 @@
-#  models.py
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean
+# models.py
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, func, Boolean, JSON, Table
 from sqlalchemy.orm import relationship
 from database import Base
+import configparser
+
+# Чтение настроек из settings.ini
+config = configparser.ConfigParser()
+config.read('settings.ini')
+
+# Роли пользователей и статусы заявок
+roles = config.get('settings', 'roles').split(',')
+request_statuses = config.get('settings', 'request_statuses').split(',')
+equipment_justification = config.get('settings', 'equipment_justification').split(',')
+tariffs = config.get('settings', 'tariffs').split(',')
+
+# Промежуточная таблица для связи "многие ко многим" между Task_equipment и Oborudovanie
+task_equipment_oborudovanie = Table(
+    'task_equipment_oborudovanie',
+    Base.metadata,
+    Column('task_equipment_id', Integer, ForeignKey('task_equipment.id'), primary_key=True),
+    Column('oborudovanie_id', Integer, ForeignKey('oborudovanie.id'), primary_key=True)
+)
+
+# Промежуточная таблица для связи "многие ко многим" между Task_Universal и Services
+task_universal_services = Table(
+    'task_universal_services',
+    Base.metadata,
+    Column('task_universal_id', Integer, ForeignKey('task_universal.id'), primary_key=True),
+    Column('services_id', Integer, ForeignKey('services.id'), primary_key=True)
+)
 
 
-class Users(Base):
-    __tablename__ = 'users'
+class User(Base):
+    __tablename__ = 'user'
+
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String)
-    password = Column(String)
-    name_0 = Column(String)  # Ф
-    name_1 = Column(String)  # И
-    name_2 = Column(String)  # О
-    tel = Column(String)  # Стационарный тел
-    tel_m = Column(String)  # Мобильный тел
-    division = Column(String)  # Подразделение
-    building = Column(String)  # Здание
-    cabinet = Column(String)  # Кабинет
+    username = Column(String, nullable=False, unique=True)
+    password = Column(String, nullable=False)
+    surname = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    patronymic = Column(String, nullable=True)
+    tel_stationary = Column(String, nullable=True)
+    tel_mobile = Column(String, nullable=True)
+    building = Column(String, nullable=True)
+    cabinet = Column(String, nullable=True)
     last_entry = Column(DateTime, default=func.now())
-    last_ip = Column(String)
-    user_type_id = Column(Integer, ForeignKey('user_types.id'))  # Ссылка на таблицу user_types
+    last_ip = Column(String, nullable=True)
+    dostup = Column(String, default='пользователь', nullable=True)
 
-    user_type_relation = relationship("UserType", back_populates="users")  # Связь с таблицей UserType
+    # Новая связь с отделом, где пользователь состоит
+    otdel_id = Column(Integer, ForeignKey('otdel.id'), nullable=True)
+    otdel = relationship("Otdel", back_populates="users", foreign_keys=[otdel_id])
 
-    tasks_created = relationship("Tasks", foreign_keys="[Tasks.user_create_id]", back_populates="user_create")
-    tasks_specified = relationship("Tasks", foreign_keys="[Tasks.user_spec_id]", back_populates="user_spec")
+    # Связь: один пользователь может быть начальником многих отделов
+    otdel_nachalnik = relationship("Otdel", foreign_keys="[Otdel.nachalnik_id]", back_populates="nachalnik")
+
+    # Связь: один пользователь может быть заместителем в нескольких отделах
+    otdel_zam = relationship("Otdel", foreign_keys="[Otdel.zam_id]", back_populates="zam")
+
+    # Связь: один пользователь может быть зам. ген. директора в нескольких отделах
+    otdel_zgd = relationship("Otdel", foreign_keys="[Otdel.zgd_id]", back_populates="zgd")
+
+    # Связь с задачами
+    tasks_created = relationship("Task", back_populates="user_create")
+    tasks_eq_created = relationship("Task_equipment", foreign_keys="[Task_equipment.user_create_id]", back_populates="user_create")
+    tasks_eq_user_admin = relationship("Task_equipment", foreign_keys="[Task_equipment.user_admin_id]", back_populates="user_admin")
+    tasks_universal_created = relationship("Task_Universal", foreign_keys="[Task_Universal.user_create_id]", back_populates="user_create")
+    tasks_universal_user_admin = relationship("Task_Universal", foreign_keys="[Task_Universal.user_admin_id]", back_populates="user_admin")
 
 
-class UserType(Base):
-    __tablename__ = 'user_types'
+class Otdel(Base):
+    __tablename__ = 'otdel'
+
     id = Column(Integer, primary_key=True, index=True)
-    type_name = Column(String, unique=True, nullable=False)  # Тип пользователя (ЗГД/Обычный)
-    description = Column(String)  # Описание типа пользователя
+    name = Column(String, nullable=False)
+    description = Column(String, default="")
 
-    users = relationship("Users", back_populates="user_type_relation")
+    # Добавляем связь с пользователями, состоящими в отделе
+    users = relationship("User", back_populates="otdel", foreign_keys="[User.otdel_id]")
+
+    # Начальник и заместители
+    nachalnik_id = Column(Integer, ForeignKey('user.id'), nullable=True)
+    zam_id = Column(Integer, ForeignKey('user.id'), nullable=True)
+    zgd_id = Column(Integer, ForeignKey('user.id'), nullable=True)
+
+    nachalnik = relationship("User", foreign_keys=[nachalnik_id], back_populates="otdel_nachalnik")
+    zam = relationship("User", foreign_keys=[zam_id], back_populates="otdel_zam")
+    zgd = relationship("User", foreign_keys=[zgd_id], back_populates="otdel_zgd")
 
 
-class Tasks(Base):
-    __tablename__ = 'tasks'
+class Category(Base):
+    __tablename__ = 'category'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+
+    # Добавляем отношение для обратной связи с Task
+    tasks = relationship("Task", back_populates="category")
+
+
+class Task(Base):
+    __tablename__ = 'task'
+
     id = Column(Integer, primary_key=True, index=True)
     tel = Column(String)  # Телефон
     theme = Column(String)  # Тема от пользователя
@@ -46,44 +110,110 @@ class Tasks(Base):
     date_create = Column(DateTime, default=func.now())
     date_of_change = Column(DateTime, nullable=True)
     comments = Column(String)
+    comments_cit_only = Column(String, default=None)
+    comments_user = Column(String, default=None)
     logs = Column(String)  # Логирование действий пользователей
+    ip_requests = Column(String)
 
-    category_id = Column(Integer, ForeignKey('categories.id'))  # Связь с таблицей категорий
-    category = relationship("Categories", back_populates="tasks")
+    # Связь с таблицей Category
+    category_id = Column(Integer, ForeignKey('category.id'), nullable=True)
 
-    files = relationship("File", back_populates="task")
+    # Определение отношений
+    category = relationship("Category", back_populates="tasks")
 
-    user_create_id = Column(Integer, ForeignKey('users.id'))  # Связь с таблицей users для создателя задачи
-    user_create = relationship("Users", foreign_keys=[user_create_id], back_populates="tasks_created")
+    # Связь с таблицей User (кто создал заявку)
+    user_create_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 
-    user_spec_id = Column(Integer, ForeignKey('users.id'))  # Связь с таблицей users для исполнителя задачи
-    user_spec = relationship("Users", foreign_keys=[user_spec_id], back_populates="tasks_specified")
-
-    status_id = Column(Integer, ForeignKey('statustask.id'))  # Связь с таблицей статусов задач
-    status = relationship("StatusTask", back_populates="tasks")
+    # Определение отношения с таблицей User
+    user_create = relationship("User", back_populates="tasks_created")
 
 
-class StatusTask(Base):
-    __tablename__ = 'statustask'
+class Task_equipment(Base):
+    __tablename__ = 'task_equipment'
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    description = Column(String)
 
-    tasks = relationship("Tasks", back_populates="status")
+    # Связь с таблицей User (кто создал заявку)
+    user_create_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_admin_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+
+    # Определение отношения с таблицей User
+    user_create = relationship("User", foreign_keys=[user_create_id], back_populates="tasks_eq_created")
+    user_admin = relationship("User", foreign_keys=[user_admin_id], back_populates="tasks_eq_user_admin")
+
+    obosnovanie = Column(String, nullable=False)
+    fio = Column(String, nullable=False)  # Для кого создаётся заявка
+    doljonost = Column(String, nullable=False)
+    geo = Column(String, nullable=False)
+
+    date_create = Column(DateTime, default=func.now())
+    date_of_change = Column(DateTime, nullable=True)
+    status = Column(String, nullable=True)
+    date_execution = Column(DateTime, nullable=True)
+
+    # Поля комментариев
+    comment_for_admin = Column(String, nullable=True)
+    comment_ruk = Column(String, nullable=True)
+    comment_admin_zgd_admin = Column(String, nullable=True)
+    comment_admin_zgd = Column(String, nullable=True)
+    comment_admin_for_all = Column(String, nullable=True)
+
+    # Связь "многие ко многим" с таблицей Oborudovanie
+    oborudovanie = relationship("Oborudovanie", secondary=task_equipment_oborudovanie, back_populates="task_equipment")
+
+    other_equipment = Column(String, nullable=True)
 
 
-class File(Base):
-    __tablename__ = 'files'
+class Oborudovanie(Base):
+    __tablename__ = 'oborudovanie'
+
     id = Column(Integer, primary_key=True, index=True)
-    filename = Column(String)
-    task_id = Column(Integer, ForeignKey('tasks.id'))
+    name = Column(String, default=False, nullable=False)
 
-    task = relationship("Tasks", back_populates="files")
+    # Связь "многие ко многим" с таблицей Task_equipment
+    task_equipment = relationship("Task_equipment", secondary=task_equipment_oborudovanie, back_populates="oborudovanie")
 
 
-class Categories(Base):
-    __tablename__ = 'categories'
+class Task_Universal(Base):
+    __tablename__ = 'task_universal'
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
 
-    tasks = relationship("Tasks", back_populates="category")
+    # Связь с таблицей User (кто создал заявку)
+    user_create_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_create = relationship("User", foreign_keys=[user_create_id], back_populates="tasks_universal_created")
+
+    # Связь с таблицей User (администратор заявки)
+    user_admin_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_admin = relationship("User", foreign_keys=[user_admin_id], back_populates="tasks_universal_user_admin")
+
+    fio = Column(String, nullable=False)  # Для кого создаётся заявка
+    doljonost = Column(String, nullable=False)
+
+    # Поля комментариев
+    comment_for_admin = Column(String, nullable=True)
+    comment_ruk = Column(String, nullable=True)
+    comment_admin_zgd_admin = Column(String, nullable=True)
+    comment_admin_zgd = Column(String, nullable=True)
+    comment_admin_for_all = Column(String, nullable=True)
+
+    internet_is = Column(Boolean, default=False, nullable=True)
+    corp_svyaz = Column(Boolean, default=False, nullable=True)
+
+    date_create = Column(DateTime, default=func.now())
+    date_of_change = Column(DateTime, nullable=True)
+    status = Column(String, nullable=True)
+    date_execution = Column(DateTime, nullable=True)
+
+    # Связь "многие ко многим" с таблицей Services
+    services = relationship("Services", secondary=task_universal_services, back_populates="task_universal")
+
+
+class Services(Base):
+    __tablename__ = 'services'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, default=False, nullable=False)
+
+    # Связь "многие ко многим" с таблицей Task_Universal
+    task_universal = relationship("Task_Universal", secondary=task_universal_services, back_populates="services")

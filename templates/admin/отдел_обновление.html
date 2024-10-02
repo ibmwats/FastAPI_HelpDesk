@@ -1,0 +1,85 @@
+{% extends 'base_admin.html' %}
+{% block title %}Информация об отделе: {{ otdel.name }}{% endblock%}
+{% block h1 %}Информация об отделе: {{ otdel.name }}{% endblock%}
+
+{% block main %}
+<div class="card mb-4 ">
+    <div class="card-header">
+        <i class="fas fa-tasks me-1"></i>
+        Информация об отделе: <b>{{ otdel.name }}</b>
+    </div>
+
+    <div class="card-body">
+        <div class="container-fluid px-4">
+            <div class="form-group row mt-2">
+                <form action="/admin/otdel/{{ otdel.id }}" method="post">
+                    <div class="form-group row mt-2">
+                        <label for="name" class="col-sm-2 col-form-label">Название отдела:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="name" name="name" class="form-control" value="{{ otdel.name }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="description" class="col-sm-2 col-form-label">Описание:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="description" name="description" class="form-control"
+                                   value="{{ otdel.description }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="nachalnik_id" class="col-sm-2 col-form-label">Начальник отдела:</label>
+                        <div class="col-sm-5">
+                            <select id="nachalnik_id" name="nachalnik_id" class="form-control">
+                                <option value="">Не назначен</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id== otdel.nachalnik_id %}selected{% endif %}>
+                                    {{ user.surname }} {{ user.name }} {{ user.patronymic }} | {{ user.dostup }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="zam_id" class="col-sm-2 col-form-label">Заместитель отдела:</label>
+                        <div class="col-sm-5">
+                            <select id="zam_id" name="zam_id" class="form-control">
+                                <option value="">Не назначен</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id== otdel.zam_id %}selected{% endif %}>{{
+                                    user.surname }} {{ user.name }} {{ user.patronymic }} | {{ user.dostup }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="zgd_id" class="col-sm-2 col-form-label">ЗГД отдела:</label>
+                        <div class="col-sm-5">
+                            <select id="zgd_id" name="zgd_id" class="form-control">
+                                <option value="">Не назначен</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}" {% if user.id== otdel.zgd_id %}selected{% endif %}>{{
+                                    user.surname }} {{ user.name }} {{ user.patronymic }} | {{ user.dostup }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-5 offset-sm-2">
+                            <input type="submit" value="Обновить отдел" class="btn btn-primary">
+                            <a href="/admin/otdel/{{ otdel.id }}/delete" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот отдел?');">Удалить</a>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

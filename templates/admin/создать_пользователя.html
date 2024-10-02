@@ -4,10 +4,6 @@
 
 {% block main %}
 <div class="card mb-4">
-    {% if created_user %}
-    <p>Успешно создали пользователя: {{ created_user.username }} с правами {{ created_user.user_type_relation.type_name
-        }}</p>
-    {% endif %}
     <div class="card-header">
         <i class="fas fa-users me-1"></i>
         Создание пользователя
