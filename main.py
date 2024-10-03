@@ -21,20 +21,18 @@ from sqlalchemy import func
 
 import routers.admin
 import routers.user
-import routers.leaders
 from auth import authenticate_user, ACCESS_TOKEN_EXPIRE_MINUTES, create_access_token, get_current_user, hash_password
 from database import init_models, get_db
 from models import Base, User, Otdel
 import configparser  # settings.ini
 
-from routers.admin_func import fetch_otdels
+from routers.func import fetch_otdels
 
 # Создание приложения FastAPI
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(routers.admin.router, prefix="/admin", tags=["admin"])
 app.include_router(routers.user.router, prefix="/user", tags=["user"])
-app.include_router(routers.leaders.router, prefix="/leaders", tags=["leaders"])
 templates = Jinja2Templates(directory="templates")
 
 # settings.ini
@@ -149,7 +147,7 @@ async def registration_post(request: Request,
                             patronymic: str = Form(...),
                             tel_stationary: str = Form(...),
                             tel_mobile: str = Form(...),
-                            otdel_id: int = Form(...),
+                            otdel_id: int = Form(default=None),
                             building: str = Form(...),
                             cabinet: str = Form(...),
                             db: AsyncSession = Depends(get_db)):

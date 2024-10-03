@@ -12,7 +12,7 @@ from starlette.templating import Jinja2Templates
 from auth import get_current_user, hash_password
 from database import get_db
 from models import User, Task, roles, Otdel, Category
-from routers.admin_func import fetch_otdels
+from routers.func import fetch_otdels, fetch_categories
 
 router = APIRouter()
 templates = Jinja2Templates(directory="templates/admin")
@@ -303,8 +303,7 @@ async def update_otdel(
 async def categories(request: Request, db: AsyncSession = Depends(get_db),
                      current_user: User = Depends(access_check)):
     try:
-        result = await db.execute(select(Category))
-        all_categories = result.scalars().all()
+        all_categories = await fetch_categories(db)
         return templates.TemplateResponse("категории.html", {"request": request, "categories": all_categories})
 
     except Exception as e:
@@ -323,8 +322,7 @@ async def add_categories(request: Request,
         category = result.scalars().first()
 
         if category:
-            result = await db.execute(select(Category))
-            all_categories = result.scalars().all()
+            all_categories = await fetch_categories(db)
 
             message = '<strong>Категория уже существует!</strong>'
             message_type = f"danger"
@@ -340,8 +338,7 @@ async def add_categories(request: Request,
         db.add(new_cat)
         await db.commit()
 
-        result = await db.execute(select(Category))
-        all_categories = result.scalars().all()
+        all_categories = await fetch_categories(db)
 
         # Сообщение об успешном добавлении домена
         message = "<strong>Поздравляем!</strong> Вы успешно добавили категорию!"

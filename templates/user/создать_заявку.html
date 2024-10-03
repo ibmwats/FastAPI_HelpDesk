@@ -1,0 +1,76 @@
+{% extends 'base_user.html' %}
+{% block title %}Создать заявку в техподдержку{% endblock %}
+{% block h1 %}Создать заявку в техподдержку{% endblock %}
+
+{% block main %}
+
+<div class="card mb-4 ">
+    <div class="card-header">
+        <i class="fa-solid fa-list-check"></i>
+        Форма создания заявки в техподдержку
+    </div>
+
+    <div class="card-body">
+        <div class="container-fluid px-4">
+            <div class="form-group row mt-2">
+                <form action="/user/create-task" method="post" enctype="multipart/form-data">
+
+                    <div class="form-group row mt-2">
+                        <label for="category_id" class="col-sm-2 col-form-label">Причина обращения:</label>
+                        <div class="col-sm-5">
+                            <select id="category_id" name="category_id" class="form-control">
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="tel" class="col-sm-2 col-form-label">Телефон для связи:</label>
+                        <div class="col-sm-5">
+                            <input type="number" id="tel" name="tel" class="form-control"
+                                   value="{{ current_user.tel_stationary }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="theme" class="col-sm-2 col-form-label">Тема обращения:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="theme" name="theme" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="location" class="col-sm-2 col-form-label">Местоположения:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="location" name="location" class="form-control"
+                                   value="Здание: {{ current_user.building  }} / Кабинет: {{ current_user.cabinet }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="text" class="col-sm-2 col-form-label">Описание:</label>
+                        <div class="col-sm-5">
+                            <textarea class="form-control" name="text" id="text" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <label for="formFileMultiple" class="col-sm-2 col-form-label">Прикрепить файлы</label>
+                        <div class="col-sm-5">
+                            <input class="form-control" name="files" type="file" id="formFileMultiple" multiple>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-5 offset-sm-2">
+                            <input type="submit" value="Создать заявку" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
