@@ -1,16 +1,16 @@
 {% extends 'base_admin.html' %}
 {% block title %}Информация об отделе: {{ user.name }}{% endblock%}
-{% block h1 %}Информация об отделе: {{ user.name }}{% endblock%}
+{% block h1 %}Информация о пользователе: {{ user.username }}{% endblock%}
 
 {% block main %}
 
 
 
 
-<div class="card mb-4 ">
+<div class="card mb-4">
     <div class="card-header">
         <i class="fas fa-tasks me-1"></i>
-        Информация об пользователе: <b>{{ user.username }} / {{ user.surname }} {{ user.name }} {{ user.patronymic
+        Информация о пользователе: <b>{{ user.username }} / {{ user.surname }} {{ user.name }} {{ user.patronymic
         }}</b>
     </div>
 
@@ -145,6 +145,34 @@
                     <div class="form-group row mt-2">
                         <div class="col-sm-5 offset-sm-2">
                             <input type="submit" value="Обновить" class="btn btn-primary">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fa-solid fa-key"></i>
+        Изменить пароль пользователю
+    </div>
+
+    <div class="card-body">
+        <div class="container-fluid px-4">
+            <div class="form-group row mt-2">
+                <form action="/admin/user/{{ user.id }}/change-password" method="post">
+                    <div class="form-group row mt-2">
+                        <label for="new_password" class="col-sm-2 col-form-label">Новый пароль:</label>
+                        <div class="col-sm-5">
+                            <input type="text" id="new_password" name="new_password" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="form-group row mt-2">
+                        <div class="col-sm-5 offset-sm-2">
+                            <input type="submit" value="Изменить пароль" class="btn btn-primary">
                         </div>
                     </div>
                 </form>

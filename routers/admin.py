@@ -4,9 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
-from sqlalchemy import func
 
-from starlette.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 
 from auth import get_current_user, hash_password
@@ -116,6 +114,48 @@ async def update_user(
         if zgd:
             result = await db.execute(select(Otdel).where(Otdel.id == zgd))
             user.otdel_zgd = result.scalar_one_or_none()
+
+        await db.commit()
+
+        result = await db.execute(select(User).filter(User.id == user_id))
+        user = result.scalars().first()
+
+        result = await db.execute(select(Otdel))
+        otdels = result.scalars().all()
+
+        message_type = "success"
+        message = f"Пользователь {user.surname} {user.name} {user.patronymic} успешно обновлен"
+
+        return templates.TemplateResponse("пользователь_обновление.html", {"request": request,
+                                                                           "message_type": message_type,
+                                                                           "message": message,
+                                                                           "user": user,
+                                                                           "roles": roles,
+                                                                           "otdels": otdels})
+
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail="Ошибка при обновлении пользователя")
+
+
+@router.post("/user/{user_id}/change-password")
+async def update_user(
+        request: Request,
+        user_id: int,
+        new_password: str = Form(...),
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(access_check)
+):
+    try:
+        result = await db.execute(select(User).where(User.id == user_id))
+        user = result.scalar_one_or_none()
+
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+        pass_hash = await hash_password(new_password)
+        # Обновление данных пользователя
+        user.password = pass_hash
 
         await db.commit()
 
